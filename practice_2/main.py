@@ -32,9 +32,7 @@ def task3():
 
 
 def task4():
-    matrix = np.zeros((5, 5), int)
-    matrix += np.diag([1, 2, 3, 4], k=-1)
-
+    matrix = np.diag([1, 2, 3, 4], k=-1)
     print(matrix)
 
 
