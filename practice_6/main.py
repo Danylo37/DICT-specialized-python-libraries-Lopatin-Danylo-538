@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.optimize import minimize
+from scipy.optimize import minimize, LinearConstraint, NonlinearConstraint
 import time
 import warnings
 
@@ -36,8 +36,8 @@ def constraint1_grad(x):
     return np.array([-2*x[0] + 8, -2*x[1] + 6])
 
 
-def constraint1_hess(_x):
-    return np.array([[-2, 0], [0, -2]])
+def constraint1_hess(_x, _v):
+    return _v * np.array([[-2, 0], [0, -2]])
 
 
 def constraint2(x):
@@ -96,11 +96,21 @@ def optimize_and_print(func, func_grad, method, constraints, negate_result=False
 
 
 def main():
-    cons = [
-        {'type': 'ineq', 'fun': constraint1, 'jac': constraint1_grad, 'hess': constraint1_hess},
-        {'type': 'ineq', 'fun': constraint2, 'jac': constraint2_grad, 'hess': constraint2_hess},
-        {'type': 'ineq', 'fun': constraint3, 'jac': constraint3_grad, 'hess': constraint3_hess}
-    ]
+    nonlinear_cons = NonlinearConstraint(
+        constraint1,
+        0,
+        np.inf,
+        jac=constraint1_grad,
+        hess=constraint1_hess
+    )
+
+    linear_cons = LinearConstraint(
+        np.array([[3, 2], [2, 3]]),
+        -np.inf,
+        np.array([24, 24])
+    )
+
+    cons = [nonlinear_cons, linear_cons]
 
     print("Min:")
     optimize_and_print(f, f_grad, 'trust-constr', cons, func_hess=f_hess)
